@@ -60,6 +60,8 @@ func worker(workerTag int, jobsC <-chan int, logsC chan<- *helpers.Log) {
 			// skip this loop
 			continue
 		}
+
+		// how to restart the job when comparison failed?
 		// key := compare.MakeKey(bytedata)
 		// exist := cache.CheckExistence(key)
 		// if exist { log <- errors.New("data already exist"); return }
@@ -76,6 +78,8 @@ func worker(workerTag int, jobsC <-chan int, logsC chan<- *helpers.Log) {
 	logsC <- stopL
 	return
 }
+
+func downloadAndCompare() {}
 
 func logger(workerTag int, c chan *helpers.Log, wg *sync.WaitGroup) {
 	defer wg.Done()
