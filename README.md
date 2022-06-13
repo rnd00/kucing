@@ -1,11 +1,18 @@
 # kucing
 
+`kucing` is an indonesian word for `cat`
+
+## what
+
 an attempt to recreate [**kochengs**](https://github.com/rnd00/kochengs) with better understanding in concurrency;
 
 in short -- an *'attempt on learning'* go-concurrency and channels.
 
 per [**kochengs**](https://github.com/rnd00/kochengs), is still;
   > Will generate cat image, based from [thiscatdoesnotexist](https://thiscatdoesnotexist.com)
+
+or more actually kind of *will **GET** cat image from thiscatdoesnotexist*
+
 
 ## plan
 
