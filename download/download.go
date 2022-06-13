@@ -27,3 +27,15 @@ func Cat() ([]byte, error) {
 	}
 	return []byte{}, errors.New(fmt.Sprintf("HTTP Status Code returned was not expected; %+v", resp.StatusCode))
 }
+
+func Routine(dataC chan []byte, errorC chan error) {
+	// download
+	data, err := Cat()
+	if err != nil {
+		errorC <- err
+		return
+	}
+
+	dataC <- data
+	return
+}
