@@ -14,7 +14,7 @@ const (
 )
 
 func (s severity) String() string {
-	a := []string{"Debug", "Info", "Fatal"}
+	a := []string{"DBG", "NFO", "FTL"}
 	return a[s]
 }
 
@@ -57,7 +57,7 @@ func NewLogError(e err) *Log {
 }
 
 func (l *Log) String() string {
-	return fmt.Sprintf("[%s] %s | %s", time.Now().Format(time.RFC3339), l.severity, l.message)
+	return fmt.Sprintf("[%s] %s\t| %s", time.Now().Format(time.RFC3339), l.severity, l.message)
 }
 
 func (l *Log) Print() {
