@@ -33,7 +33,7 @@ func (c *Cac) CheckKey(k string) bool {
 
 func (c *Cac) DeleteKey(k string) {
 	c.mu.Lock()
-	c.mu.Unlock()
+	defer c.mu.Unlock()
 
 	delete(c.data, k)
 }
