@@ -52,8 +52,12 @@ func testingDownloadUsingWorker() {
 func worker(workerTag int, jobsC <-chan int, logsC chan<- *helpers.Log, cache *cache.Cac) {
 	defer close(logsC)
 
+	amtOfJobs := 0
+
 	// while jobsC is not closed
 	for n := range jobsC {
+		amtOfJobs++
+
 		// start log
 		startLogMsg := fmt.Sprintf("[WORKER %d] job %d\t| Start", workerTag, n)
 		startL := helpers.NewLogInfo(startLogMsg)
@@ -80,7 +84,6 @@ func worker(workerTag int, jobsC <-chan int, logsC chan<- *helpers.Log, cache *c
 				continue
 			}
 
-			// how to restart the job when comparison failed?
 			key := compare.MakeKey(helpers.ToBase64Bytes(bytedata))
 			debugLog := fmt.Sprintf("[WORKER %d] job %d\t| generated key: %s", workerTag, n, key)
 			logsC <- helpers.NewLogDebug(debugLog)
@@ -94,26 +97,29 @@ func worker(workerTag int, jobsC <-chan int, logsC chan<- *helpers.Log, cache *c
 			}
 
 			cache.SetKey(key)
-			// helpers.WriteToFile(bytedata)
+			var filename string
+			if filename, err = helpers.WriteToFile(bytedata); err != nil {
+				errL := helpers.NewLogError(*helpers.NewError(err))
+				logsC <- errL
+				continue
+			}
+			fileCreatedL := fmt.Sprintf("[WORKER %d] job %d\t| File written: %s", workerTag, n, filename)
+			fileL := helpers.NewLogInfo(fileCreatedL)
+			logsC <- fileL
+
 			jobDone = true
-			jobDoneMsg := fmt.Sprintf("[WORKER %d] job %d\t| done", workerTag, n)
-			jobDoneL := helpers.NewLogInfo(jobDoneMsg)
-			logsC <- jobDoneL
 		}
 
-		// end log (debug)
-		// endLogMsg := fmt.Sprintf("[WORKER %d] job %d", workerTag, n)
-		// endL := helpers.NewLogInfo(endLogMsg)
-		// logsC <- endL
+		jobDoneMsg := fmt.Sprintf("[WORKER %d] job %d\t| done, moving to the next one", workerTag, n)
+		jobDoneL := helpers.NewLogInfo(jobDoneMsg)
+		logsC <- jobDoneL
 	}
 
-	stopLogMsg := fmt.Sprintf("[WORKER %d] jobs done, closing", workerTag)
+	stopLogMsg := fmt.Sprintf("[WORKER %d] %d jobs done, closing", workerTag, amtOfJobs)
 	stopL := helpers.NewLogInfo(stopLogMsg)
 	logsC <- stopL
 	return
 }
-
-func downloadAndCompare() {}
 
 func logger(workerTag int, c chan *helpers.Log, wg *sync.WaitGroup) {
 	defer wg.Done()
