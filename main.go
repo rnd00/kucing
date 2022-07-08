@@ -12,18 +12,20 @@ import (
 	"github.com/rnd00/kucing/helpers"
 )
 
+const (
+	cacheDuration time.Duration = time.Second * 2
+	workerAmount  int           = 2
+	jobsAmount    int           = 12
+)
+
 func main() {
-	// testingDownload()
-	testingDownloadUsingWorker()
+	DownloadWorker(workerAmount, jobsAmount)
 }
 
-func testingDownloadUsingWorker() {
-	workerAmt := 2
-	jobsAmt := 12
-
+func DownloadWorker(workerAmt, jobsAmt int) {
 	var wg sync.WaitGroup
 	jobs := make(chan int, jobsAmt)
-	cache := cache.NewCache()
+	cache := cache.NewCache().AddTimeout(cacheDuration)
 
 	// open up subthread
 	for i := 0; i < workerAmt; i++ {
@@ -96,7 +98,7 @@ func worker(workerTag int, jobsC <-chan int, logsC chan<- *helpers.Log, cache *c
 				continue
 			}
 
-			cache.SetKey(key)
+			cache.SetKeyWithTimeout(key)
 			var filename string
 			if filename, err = helpers.WriteToFile(bytedata); err != nil {
 				errL := helpers.NewLogError(*helpers.NewError(err))
